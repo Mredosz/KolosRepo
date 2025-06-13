@@ -73,7 +73,7 @@ jobs:
     needs:
       - deploy
     runs-on: ubuntu-latest
-    name: Manual Approve for Productionn
+    name: Manual Approve for Production
     environment:
       name: production
     steps:
