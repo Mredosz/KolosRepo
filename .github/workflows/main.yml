@@ -82,7 +82,8 @@ jobs:
 
   deploy-to-docker-hub:
     if: github.ref == 'refs/heads/main'
-    needs: manual-approve
+    needs:
+      - manual-approve
     runs-on: ubuntu-latest
     name: Deploy to Docker Hub
     steps:
