@@ -1,0 +1,14 @@
+{
+  "name": "kolokwium",
+  "version": "1.0.0",
+  "main": "add.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0"
+  },
+  "type": "commonjs"
+}

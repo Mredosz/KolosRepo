@@ -1,0 +1,81 @@
+on:
+  push:
+    branches:
+      - '**'
+
+env:
+  IMAGE_NAME: kolokwium
+
+jobs:
+  test:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Run Unit Tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
+
+  lint:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+  build-and-archive:
+    if: github.ref != 'refs/heads/main'
+    needs:
+      - test
+      - lint
+    runs-on: ubuntu-latest
+    name: Build and Archive Docker Image
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: Save image to file
+        run: docker save $IMAGE_NAME | gzip > image.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar.gz
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    environment:
+      name: staging
+    steps:
+      - name: Simulate deploy to staging
+        run: echo "Deploying to staging..."
+
+  manual-approve:
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - deploy
+    runs-on: ubuntu-latest
+    name: Manual Approve for Production
+    environment:
+      name: production
+    steps:
+      - name: Waiting for manual approval
+        run: echo "Waiting for approval to deploy to production..."
