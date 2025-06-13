@@ -112,7 +112,7 @@ jobs:
           echo "CI/CD Summary Report - $GITHUB_WORKFLOW" > report.txt
           echo "Branch: $GITHUB_REF_NAME" >> report.txt
 
-          if [[ "${{ needs.build-and-archive.result }}" != "success" || "${{ needs.deploy-to-docker-hub.result }}" != "success" ]]; then
+          if [[ "${{ needs.build-and-archive.result }}" == "success" || "${{ needs.deploy-to-docker-hub.result }}" == "success" ]]; then
             echo "Status: FAILURE" >> report.txt
           else
             echo "Status: SUCCESS" >> report.txt
