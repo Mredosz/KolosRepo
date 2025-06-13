@@ -101,7 +101,11 @@ jobs:
 
   summary:
     needs:
+      - test
+      - lint
       - build-and-archive
+      - deploy
+      - manual-approve
       - deploy-to-docker-hub
     if: always()
     runs-on: ubuntu-latest
@@ -112,12 +116,22 @@ jobs:
           echo "CI/CD Summary Report - $GITHUB_WORKFLOW" > report.txt
           echo "Branch: $GITHUB_REF_NAME" >> report.txt
 
-          if [[ "${{ needs.build-and-archive.result }}" == "success" || "${{ needs.deploy-to-docker-hub.result }}" == "success" ]]; then
-            echo "Status: SUCCESS" >> report.txt
-          else
-            echo "Status: FAILURE" >> report.txt
-          fi
-          
+          echo "test: ${{ needs.test.result }}" >> report.txt
+          echo "lint: ${{ needs.lint.result }}" >> report.txt
+          echo "build-and-archive: ${{ needs['build-and-archive'].result }}" >> report.txt
+          echo "deploy: ${{ needs.deploy.result }}" >> report.txt
+          echo "manual-approve: ${{ needs['manual-approve'].result }}" >> report.txt
+          echo "deploy-to-docker-hub: ${{ needs['deploy-to-docker-hub'].result }}" >> report.txt
+
+          overall_status="SUCCESS"
+
+          for result in "${{ needs.test.result }}" "${{ needs.lint.result }}" "${{ needs['build-and-archive'].result }}" "${{ needs.deploy.result }}" "${{ needs['manual-approve'].result }}" "${{ needs['deploy-to-docker-hub'].result }}"; do
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              overall_status="FAILURE"
+            fi
+          done
+
+          echo "Overall Status: $overall_status" >> report.txt
           echo "Timestamp: $(date)" >> report.txt
 
       - name: Upload report
