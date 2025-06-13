@@ -85,7 +85,7 @@ jobs:
     needs:
       - manual-approve
     runs-on: ubuntu-latest
-    name: Deploy to Docker Hubb
+    name: Deploy to Docker Hub
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -98,3 +98,21 @@ jobs:
 
       - name: Push image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/kolokwium:latest
+
+  summary:
+    if: always()
+    runs-on: ubuntu-latest
+    name: Generate Final Report
+    steps:
+      - name: Generate report.txt
+        run: |
+          echo "CI/CD Summary Report - $GITHUB_WORKFLOW" > report.txt
+          echo "Branch: $GITHUB_REF_NAME" >> report.txt
+          echo "Status: ${{ job.status }}" >> report.txt
+          echo "Timestamp: $(date)" >> report.txt
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-cd-report
+          path: report.txt
